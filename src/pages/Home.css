@@ -1,0 +1,57 @@
+.header{
+    width: 37%;
+    background-color: rgb(37, 39, 40);
+    border-radius: 10px;
+    justify-content: center;
+    align-items: center;
+    margin:10px auto;
+    padding: 5px 10px;
+}
+
+.header-First{
+    display: flex;
+    justify-content: center;
+    margin: 10px auto;
+    align-items: center;
+  
+    column-gap: 10px;
+}
+.header-First button{
+    border-radius: 20px;
+    display: flex;
+    align-items: flex-start;
+    border: none;
+    background-color: rgb(72, 72, 73);
+    color: rgb(176, 179, 183);
+    padding: 9px;
+    width: 100%;
+    font-size: 18px;
+    &:hover{
+    background-color:rgb(123, 123, 129) ;    
+    }
+
+
+}
+.header-First img{
+    border-radius: 50%;
+    width:40px;
+}
+.Button-section button{
+    display: flex;
+    align-items: center;
+    column-gap: 10px;
+    border-radius: 8px;
+    padding: 5px 12px;
+    background-color:  rgb(37, 39, 40);
+    color: rgb(176, 179, 183) ;
+    border: none;
+    &:hover{
+        background-color: rgb(123, 123, 129) ;
+    }
+}
+.Button-section{
+    gap: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
