@@ -6,7 +6,7 @@ import InsertPhotoIcon from '@mui/icons-material/InsertPhoto';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import { Modal, Box, Button, Typography, TextField } from "@mui/material";
 import { IconButton } from '@mui/material';
-import { ThumbUp, Share, Comment } from '@mui/icons-material';
+import { ThumbUp, Share, Comment, Opacity } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import { addDoc, collection, getDocs, getFirestore, onSnapshot, query } from "firebase/firestore";
@@ -23,18 +23,17 @@ const HomePage = () => {
   // const [isDragging, setIsDragging] = useState(false);
   const [provideData, setProvideData] = useState([])
   const fileInputRef = useRef(null);
-  // const [selectedFiles, setSelectedFiles] = useState();
+ 
   const db = getFirestore();
 
   const handleOpen = () => {
     setOpen(true);
-    setClosed(false)
+    // setClosed(false)
   }
   const handleClose = () => {
     setOpen(false);
-    // setSelectedFiles([]);
-    // setFile(null);
-    setClosed(false)
+    
+    // setClosed(false)
   };
 
 
@@ -115,17 +114,13 @@ const HomePage = () => {
     }
   }, [])
 
-
-  const removeSelectedFiles = () => {
-    setSelectedFiles([]);
-    setFile(null);
-    setClosed(true)
-    console.log("check")
-  };
-
+const targetclosed=()=>{
+  setClosed(true)
+}
+  
   return (
-    <>
-      <div className='header'>
+    <div style={{opacity: closed==false ? 1 : 0.5}}>
+      <div className='header' >
         <div className='header-First'>
           <img src={state.user?.photoURL} alt="" />
           <button>What's on your mind, {state?.user?.displayName}?</button>
@@ -174,6 +169,7 @@ const HomePage = () => {
           {(closed == false) ?
             <div style={{ border: "1px solid rgb(101, 104, 108)", padding: "10px", borderRadius: "8px" }}>
 
+              {(closed== false)?
               <Box sx={{
                 width: "100%",
                 height: 200,
@@ -191,12 +187,8 @@ const HomePage = () => {
 
               // onClick={handleClick}
               >
-                <CloseIcon sx={{ position: "absolute", top: 8, right: 8, cursor: "pointer", color: "white" }} onClick={removeSelectedFiles} />
-                <input 
-  type="file" 
-  ref={fileInputRef} 
-  hidden  
-  onChange={(e) => setFile(e.target.files[0])} 
+                <CloseIcon sx={{ position: "absolute", top: 8, right: 8, cursor: "pointer", color: "white" }} onClick={targetclosed} />
+                <input  type="file" ref={fileInputRef} hidden  onChange={(e) => setFile(e.target.files[0])} 
 />
                 <div onClick={handleClick} style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
                   <AddIcon sx={{ fontSize: 40, color: "white" }} />
@@ -204,6 +196,9 @@ const HomePage = () => {
                   <Typography color="#ccc" fontSize={12}>or drag and drop</Typography>
                 </div>
               </Box>
+                :
+                null
+}
             </div>
             :
             null
@@ -308,7 +303,7 @@ const HomePage = () => {
 
 
 
-    </>
+    </div>
   );
 };
 
