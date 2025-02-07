@@ -9,93 +9,112 @@ import { IconButton } from '@mui/material';
 import { ThumbUp, Share, Comment } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
-import { addDoc, collection, getDocs, getFirestore, query } from "firebase/firestore";
+import { addDoc, collection, getDocs, getFirestore, onSnapshot, query } from "firebase/firestore";
 import moment from 'moment/moment';
+import axios from 'axios';
 
 
 const HomePage = () => {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
-  const [file, setFile] = useState(null);
-  const [closed , setClosed]=useState(false)
+  const [files, setFile] = useState();
+  const [closed, setClosed] = useState(false)
   const { state } = useContext(GlobalContext);
   // const [isDragging, setIsDragging] = useState(false);
-  const [provideData ,setProvideData]=useState([])
+  const [provideData, setProvideData] = useState([])
   const fileInputRef = useRef(null);
-  const [selectedFiles, setSelectedFiles] = useState();
+  // const [selectedFiles, setSelectedFiles] = useState();
   const db = getFirestore();
-  
+
   const handleOpen = () => {
     setOpen(true);
     setClosed(false)
   }
   const handleClose = () => {
     setOpen(false);
-    setSelectedFiles([]);
-    setFile(null);
+    // setSelectedFiles([]);
+    // setFile(null);
     setClosed(false)
   };
 
- 
-  
 
 
-  
-  const handleFileInputChange = (e) => {
-    const files = Array.from(e.target.files);
-    // handleFiles(files);
-  };
 
-  // const handleFiles = (files) => {
-  //   if (files.length > 0) {
-  //     setSelectedFiles(files);
-  //     setFile(files[0]);
-  //   }
-  // };
+
+
+
 
   const handleClick = () => {
     fileInputRef.current.click();
   };
- 
-    
-    const  addPost  = async () => {
-      try {
-        const docRef = await addDoc(collection(db, "Social-Posts"), {
-          userName: state.user.displayName,
-          profilePic: state.user.photoURL,
-          userEmail : state.user.email,
-          caption: text,
-          userId: state.user.uid,
-          userDate : new Date().getTime(),
-          
-
-
-        });
-        console.log("Document written with ID: ", docRef.id);
-      } catch (e) {
-        console.error("Error adding document: ", e);
-      }
-      setOpen(false)
-      setText("")
-
- 
-    };
-    useEffect(()=>{
-      const getPost= async()=>{
-        const q = query(collection(db, "Social-Posts") );
-
-const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
   
-      console.log(doc.id, " => ", doc.data());
-      setProvideData((prev)=>[...prev, doc.data()])
-});
-      } 
-      getPost()
-      console.log('getprov', provideData)
-      
-    },[])
- 
+
+  const addPost = async () => {
+    const formData = new FormData();
+    formData.append("file", files);
+    formData.append("upload_preset", "social-posts");
+    const res = await axios.post("https://api.cloudinary.com/v1_1/diplc3kki/upload", formData);
+
+    
+    try {
+      const docRef = await addDoc(collection(db, "Social-Posts"), {
+        userName: state.user.displayName,
+        profilePic: state.user.photoURL,
+        userEmail: state.user.email,
+        caption: text,
+        userId: state.user.uid,
+        userDate: new Date().getTime(),
+        postFile: res.data.url
+
+
+
+
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+    setOpen(false)
+    setText("")
+    
+
+  };
+  // const getPost = async () => {
+  //   const q = query(collection(db, "Social-Posts"));
+
+  //   const querySnapshot = await getDocs(q);
+  //   querySnapshot.forEach((doc) => {
+
+  //     console.log(doc.id, " => ", doc.data());
+  //     setProvideData((prev) => [...prev, doc.data()])
+  //   });
+  // }
+  useEffect(() => {
+    let unsubscribe;
+    // getPost()
+    const realTimeData=()=>{
+      const q = query(collection(db, "Social-Posts"),);
+       unsubscribe = onSnapshot(q, (querySnapshot) => {
+        let realTime = []
+        querySnapshot.forEach((doc) => {
+          
+          console.log('data')
+          realTime.push(doc.data())
+          // setProvideData((prev) => [...prev, doc.data()]) 
+        });
+        // console.log("Current cities in CA: ", cities.join(", "));
+        setProvideData(realTime)
+      });
+    }  
+
+    console.log('getprov', provideData)
+    realTimeData()
+    
+    return()=> {
+      unsubscribe()
+    }
+  }, [])
+
 
   const removeSelectedFiles = () => {
     setSelectedFiles([]);
@@ -135,13 +154,13 @@ const querySnapshot = await getDocs(q);
             Create Post
           </Typography>
           <div style={{ border: "1px solid rgb(101, 104, 108)", padding: "10px", borderRadius: "8px", display: "flex", alignItems: "center", columnGap: "10px", color: "white", marginBottom: "10px" }}>
-              <img style={{ width: "45px", borderRadius: "50%" }} src={state?.user?.photoURL} alt="" />
-              <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-                <span>{state?.user?.displayName}
-                </span>
-                <button style={{ backgroundColor: "rgb(59, 61, 62)", color: "white", border: "none", borderRadius: "6px", padding: "5px" }}>friends of friends</button>
-              </div>
+            <img style={{ width: "45px", borderRadius: "50%" }} src={state?.user?.photoURL} alt="" />
+            <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+              <span>{state?.user?.displayName}
+              </span>
+              <button style={{ backgroundColor: "rgb(59, 61, 62)", color: "white", border: "none", borderRadius: "6px", padding: "5px" }}>friends of friends</button>
             </div>
+          </div>
           <TextField
             fullWidth
             multiline
@@ -152,45 +171,50 @@ const querySnapshot = await getDocs(q);
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
-          {(closed == false)?
-          <div style={{border: "1px solid rgb(101, 104, 108)", padding: "10px", borderRadius: "8px"}}>
+          {(closed == false) ?
+            <div style={{ border: "1px solid rgb(101, 104, 108)", padding: "10px", borderRadius: "8px" }}>
 
-          <Box sx={{
-            width: "100%",
-            height: 200,
-            border: "1px solid #444",
-            borderRadius: "8px",
-            backgroundColor: "#333",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            position: "relative",
-            cursor: "pointer",
-            // overflow: "hidden"
-          }}
-           
-            // onClick={handleClick}
-          >
-            <CloseIcon sx={{ position: "absolute", top: 8, right: 8, cursor: "pointer", color: "white"}} onClick={removeSelectedFiles} />
-            <input type="file" multiple hidden ref={fileInputRef} onChange={handleFileInputChange} />
-            <div onClick={handleClick} style={{display: "flex", justifyContent: "center",alignItems: "center", flexDirection: "column"}}>
-            <AddIcon sx={{ fontSize: 40, color: "white" }} />
-            <Typography color="white">Add photos/videos</Typography>
-            <Typography color="#ccc" fontSize={12}>or drag and drop</Typography>
+              <Box sx={{
+                width: "100%",
+                height: 200,
+                border: "1px solid #444",
+                borderRadius: "8px",
+                backgroundColor: "#333",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                position: "relative",
+                cursor: "pointer",
+                // overflow: "hidden"
+              }}
+
+              // onClick={handleClick}
+              >
+                <CloseIcon sx={{ position: "absolute", top: 8, right: 8, cursor: "pointer", color: "white" }} onClick={removeSelectedFiles} />
+                <input 
+  type="file" 
+  ref={fileInputRef} 
+  hidden  
+  onChange={(e) => setFile(e.target.files[0])} 
+/>
+                <div onClick={handleClick} style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
+                  <AddIcon sx={{ fontSize: 40, color: "white" }} />
+                  <Typography color="white">Add photos/videos</Typography>
+                  <Typography color="#ccc" fontSize={12}>or drag and drop</Typography>
+                </div>
+              </Box>
             </div>
-          </Box>
-          </div>
-          :
-          null
-}
+            :
+            null
+          }
           <Box sx={{ mt: 3, display: "flex", justifyContent: "space-between" }}>
             <Button variant="contained" sx={{ bgcolor: "gray" }} onClick={handleClose}>Cancel</Button>
-            <Button variant="contained" color="primary" disabled={text == 0    } onClick={addPost}>Post</Button>
+            <Button variant="contained" color="primary" disabled={text == 0} onClick={addPost}>Post</Button>
           </Box>
         </Box>
       </Modal>
-      {provideData.map((ele , i)=>{
+      {provideData.map((ele, i) => {
         const styles = {
           card: {
             width: '35.5%',
@@ -200,7 +224,8 @@ const querySnapshot = await getDocs(q);
             fontFamily: 'Arial, sans-serif',
             backgroundColor: '#252728',
             margin: "auto",
-            marginTop: "10px"
+            marginTop: "10px",
+            color: "white"
           },
           cardHeader: {
             display: 'flex',
@@ -239,47 +264,50 @@ const querySnapshot = await getDocs(q);
             color: "white"
           },
         };
-        return(
-         <div key={i} style={styles.card}>
-                <div style={styles.cardHeader}>
-                  <img
-                    src={ele.profilePic}
-                    alt="Profile Picture"
-                    style={styles.profilePic}
-                  />
-                  <div style={styles.userInfo}>
-                    <span style={styles.userName}>{ele.userName}</span>
-                    <span style={styles.userData}>{moment(ele.userDate).fromNow()}</span>
-                  </div>
-                </div>
-              <p>{ele.caption}
-              </p>
-                <img src="image.jpg" alt="Image" style={styles.cardImage} />
-                <div style={styles.actions}>
-                  <IconButton style={styles.actionBtn}>
-                    <ThumbUp />
-        
-                  </IconButton>
-                  <IconButton style={styles.actionBtn}>
-                    <Share />
-        
-                  </IconButton>
-        
-                  <IconButton style={styles.actionBtn}>
-                    <Comment />
-        
-                  </IconButton>
-                </div>
+        return (
+          <div key={i} style={styles.card }>
+            <div style={styles.cardHeader}>
+              <img
+                src={ele.profilePic}
+                alt="Profile Picture"
+                style={styles.profilePic}
+              />
+              <div style={styles.userInfo}>
+                <span style={styles.userName}>{ele.userName}</span>
+                <span style={styles.userData}>{moment(ele.userDate).fromNow()}</span>
               </div>
+            </div>
+            <p>{ele.caption}
+            </p>
+            {(ele.postFile)?
+            <img src={ele.postFile} alt="Image" style={styles.cardImage} />
+            :
+            null}
+            <div style={styles.actions}>
+              <IconButton style={styles.actionBtn}>
+                <ThumbUp />
+
+              </IconButton>
+              <IconButton style={styles.actionBtn}>
+                <Share />
+
+              </IconButton>
+
+              <IconButton style={styles.actionBtn}>
+                <Comment />
+
+              </IconButton>
+            </div>
+          </div>
         )
       })}
 
 
-     
 
 
-       
- 
+
+
+
     </>
   );
 };
