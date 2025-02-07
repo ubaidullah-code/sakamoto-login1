@@ -7,7 +7,6 @@ import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import { Modal, Box, Button, Typography, TextField } from "@mui/material";
 import { IconButton } from '@mui/material';
 import { ThumbUp, Share, Comment } from '@mui/icons-material';
-// import Card from '../components/CardsCom';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import { addDoc, collection, getDocs, getFirestore, query } from "firebase/firestore";
