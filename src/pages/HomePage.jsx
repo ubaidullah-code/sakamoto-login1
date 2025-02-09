@@ -14,6 +14,7 @@ import moment from 'moment/moment';
 import axios from 'axios';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import Swal from 'sweetalert2';
 // import Button from '@mui/material/Button';
 
 const HomePage = () => {
@@ -29,9 +30,9 @@ const HomePage = () => {
   const [provideData, setProvideData] = useState([])
   // const anchorRef = useRef(null);
   const fileInputRef = useRef(null);
+  // const{state}=useContext(GlobalContext)
   
-  
-  
+
  
   const db = getFirestore();
 
@@ -329,8 +330,27 @@ const targetclosed=()=>{
                 <span style={styles.userName}>{ele.userName}</span>
                 <span style={styles.userData}>{moment(ele.userDate).fromNow()}</span>
               </div>
-              <Button variant="contained" color='error' onClick={()=>{deletePostCheck(ele.id)}} startIcon={<DeleteIcon />}>Delete</Button>
+              {(state.user.uid == ele.userId)?
+              <>
+              <Button variant="contained" color='error' onClick={()=>{Swal.fire({
+  title: "Do you want to delete your post?",
+  // showDenyButton: true,
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonText: "Save",
+  denyButtonText: `Don't save`
+}).then((result) => {
+  /* Read more about isConfirmed, isDenied below */
+  if (result.isConfirmed) {
+    deletePostCheck(ele.id)
+    Swal.fire("Saved!", "", "success");
+  } 
+});}} startIcon={<DeleteIcon />}>Delete</Button>
               <Button variant="contained" color='secondary' onClick={()=>{editpost(ele.id , ele.caption) }} startIcon={<EditIcon />}>Edit</Button>
+              </>
+              :
+              null
+}
       </div>
 
        
@@ -377,14 +397,7 @@ const targetclosed=()=>{
           <Typography variant="h6" sx={{ color: "white", textAlign: "center", mb: 2 }}>
             Update Post
           </Typography>
-          {/* <div style={{ border: "1px solid rgb(101, 104, 108)", padding: "10px", borderRadius: "8px", display: "flex", alignItems: "center", columnGap: "10px", color: "white", marginBottom: "10px" }}>
-            <img style={{ width: "45px", borderRadius: "50%" }} src={state?.user?.photoURL} alt="" />
-            <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-              <span>{state?.user?.displayName}
-              </span>
-              <button style={{ backgroundColor: "rgb(59, 61, 62)", color: "white", border: "none", borderRadius: "6px", padding: "5px" }}>friends of friends</button>
-            </div>
-          </div> */}
+         
           <TextField
             fullWidth
             multiline

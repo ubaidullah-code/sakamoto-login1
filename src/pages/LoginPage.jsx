@@ -9,10 +9,11 @@ const LoginPage = () => {
     const[loginEmail ,SetLoginEMail]=useState("");
     const[loginPass ,SetLoginPass]=useState("");
     const [showPassword, setShowPassword] = useState(false);
+
+  const handleTogglePassword = () => {
+    setShowPassword((prev) => !prev);
+  };
     const auth = getAuth();
-    const handleTogglePassword = () => {
-      setShowPassword((prev) => !prev);
-    };
 const provider = new GithubAuthProvider();
     const loginCheckwithAnthoroption = () =>{
       signInWithPopup(auth, provider)
@@ -104,7 +105,8 @@ signInWithEmailAndPassword(auth, loginEmail, loginPass)
     <TextField
      fullWidth
       label="Password"
-       type="password" value={loginPass} variant="outlined" 
+      type={showPassword ? "text" : "password"}
+        value={loginPass} variant="outlined" 
        sx={{ mb: 3 }} onChange={(e)=>SetLoginPass(e.target.value)}
        InputProps={{
         endAdornment: (
