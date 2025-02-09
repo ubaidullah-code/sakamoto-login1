@@ -9,31 +9,40 @@ import { IconButton } from '@mui/material';
 import { ThumbUp, Share, Comment, Opacity } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
-import { addDoc, collection, getDocs, getFirestore, onSnapshot, query } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDocs, getFirestore, onSnapshot, query, updateDoc } from "firebase/firestore";
 import moment from 'moment/moment';
 import axios from 'axios';
-
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+// import Button from '@mui/material/Button';
 
 const HomePage = () => {
   const [open, setOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [text, setText] = useState("");
   const [files, setFile] = useState();
   const [closed, setClosed] = useState(false)
   const { state } = useContext(GlobalContext);
-  // const [isDragging, setIsDragging] = useState(false);
+  const [captionCheck, setCaptionCheck] = useState('');
+  const [anthorText, setAnthorText] = useState('');
+  const[idCheck, serIdCheck]=useState('')
   const [provideData, setProvideData] = useState([])
+  // const anchorRef = useRef(null);
   const fileInputRef = useRef(null);
+  
+  
+  
  
   const db = getFirestore();
 
   const handleOpen = () => {
     setOpen(true);
-    // setClosed(false)
+    
   }
   const handleClose = () => {
     setOpen(false);
     
-    // setClosed(false)
+    
   };
 
 
@@ -49,6 +58,7 @@ const HomePage = () => {
   
 
   const addPost = async () => {
+    if(files){
     const formData = new FormData();
     formData.append("file", files);
     formData.append("upload_preset", "social-posts");
@@ -73,7 +83,29 @@ const HomePage = () => {
     } catch (e) {
       console.error("Error adding document: ", e);
     }
+  }
+  else{
+    try {
+      const docRef = await addDoc(collection(db, "Social-Posts"), {
+        userName: state.user.displayName,
+        profilePic: state.user.photoURL,
+        userEmail: state.user.email,
+        caption: text,
+        userId: state.user.uid,
+        userDate: new Date().getTime(),
+        // postFile: res.data.url
+
+
+
+
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  }
     setOpen(false)
+    setModalOpen(false)
     setText("")
     
 
@@ -97,8 +129,8 @@ const HomePage = () => {
         let realTime = []
         querySnapshot.forEach((doc) => {
           
-          console.log('data')
-          realTime.push(doc.data())
+          // console.log('data', provideData )
+          realTime.push({...doc.data(), id:doc.id })
           // setProvideData((prev) => [...prev, doc.data()]) 
         });
         // console.log("Current cities in CA: ", cities.join(", "));
@@ -113,7 +145,31 @@ const HomePage = () => {
       unsubscribe()
     }
   }, [])
+  const deletePostCheck= async(id) =>{
+    await deleteDoc(doc(db, "Social-Posts", id));
+    console.log('delete post', id);
+    
+  }
+  const upadatePost = async()=>{
+    const cityRef = doc(db, 'Social-Posts', idCheck );
+    setCaptionCheck('')
+// Remove the 'capital' field from the document
+await updateDoc(cityRef, {
+    caption:captionCheck
+  });
+  setModalOpen(false)
+  setCaptionCheck('')
+  }
+const editpost=(id ,val)=>{
+serIdCheck(id)
+setAnthorText(val)
+setModalOpen(true)
 
+}
+const handleCloseCheck=()=>{
+  setModalOpen(false)
+  setCaptionCheck('')
+}
 const targetclosed=()=>{
   setClosed(true)
 }
@@ -123,7 +179,7 @@ const targetclosed=()=>{
       <div className='header' >
         <div className='header-First'>
           <img src={state.user?.photoURL} alt="" />
-          <button>What's on your mind, {state?.user?.displayName}?</button>
+          <button onClick={handleOpen}>What's on your mind, {state?.user?.displayName}?</button>
         </div>
         <hr />
         <div className='Button-section'>
@@ -210,6 +266,7 @@ const targetclosed=()=>{
         </Box>
       </Modal>
       {provideData.map((ele, i) => {
+        console.log("eachpost", ele)
         const styles = {
           card: {
             width: '35.5%',
@@ -267,10 +324,19 @@ const targetclosed=()=>{
                 alt="Profile Picture"
                 style={styles.profilePic}
               />
+              <div style={{display: "flex", justifyContent: "space-between", width: "100%"}}>
               <div style={styles.userInfo}>
                 <span style={styles.userName}>{ele.userName}</span>
                 <span style={styles.userData}>{moment(ele.userDate).fromNow()}</span>
               </div>
+              <Button variant="contained" color='error' onClick={()=>{deletePostCheck(ele.id)}} startIcon={<DeleteIcon />}>Delete</Button>
+              <Button variant="contained" color='secondary' onClick={()=>{editpost(ele.id , ele.caption) }} startIcon={<EditIcon />}>Edit</Button>
+      </div>
+
+       
+              
+
+              
             </div>
             <p>{ele.caption}
             </p>
@@ -296,7 +362,48 @@ const targetclosed=()=>{
           </div>
         )
       })}
-
+  <Modal open={modalOpen} onClose={handleCloseCheck}>
+        <Box sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 400,
+          bgcolor: "#252728",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2
+        }}>
+          <Typography variant="h6" sx={{ color: "white", textAlign: "center", mb: 2 }}>
+            Update Post
+          </Typography>
+          {/* <div style={{ border: "1px solid rgb(101, 104, 108)", padding: "10px", borderRadius: "8px", display: "flex", alignItems: "center", columnGap: "10px", color: "white", marginBottom: "10px" }}>
+            <img style={{ width: "45px", borderRadius: "50%" }} src={state?.user?.photoURL} alt="" />
+            <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+              <span>{state?.user?.displayName}
+              </span>
+              <button style={{ backgroundColor: "rgb(59, 61, 62)", color: "white", border: "none", borderRadius: "6px", padding: "5px" }}>friends of friends</button>
+            </div>
+          </div> */}
+          <TextField
+            fullWidth
+            multiline
+            rows={2}
+            type='text'
+            label="Enter your text"
+            variant="outlined"
+            sx={{ mb: 2 }}
+            // value={anthorText}
+            onChange={(e) => setCaptionCheck(e.target.value)}
+          />
+          
+               
+          <Box sx={{ mt: 3, display: "flex", justifyContent: "space-between" }}>
+            {/* <Button variant="contained" sx={{ bgcolor: "gray" }} onClick={handleClose}>Cancel</Button> */}
+            <Button variant="contained" color="primary" disabled={captionCheck == 0} onClick={upadatePost}>Post</Button>
+          </Box>
+        </Box>
+      </Modal>
 
 
 
@@ -308,3 +415,4 @@ const targetclosed=()=>{
 };
 
 export default HomePage;
+
