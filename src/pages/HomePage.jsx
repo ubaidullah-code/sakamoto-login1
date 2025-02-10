@@ -6,15 +6,16 @@ import InsertPhotoIcon from '@mui/icons-material/InsertPhoto';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import { Modal, Box, Button, Typography, TextField } from "@mui/material";
 import { IconButton } from '@mui/material';
-import { ThumbUp, Share, Comment, Opacity } from '@mui/icons-material';
+import { ThumbUp, Share, Comment } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
-import { addDoc, collection, deleteDoc, doc, getDocs, getFirestore, onSnapshot, query, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDocs, getFirestore, onSnapshot, orderBy, query, updateDoc, where } from "firebase/firestore";
 import moment from 'moment/moment';
 import axios from 'axios';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import Swal from 'sweetalert2';
+import { Link } from 'react-router';
 // import Button from '@mui/material/Button';
 
 const HomePage = () => {
@@ -108,7 +109,7 @@ const HomePage = () => {
     setOpen(false)
     setModalOpen(false)
     setText("")
-    
+    setFile()
 
   };
   // const getPost = async () => {
@@ -125,7 +126,7 @@ const HomePage = () => {
     let unsubscribe;
     // getPost()
     const realTimeData=()=>{
-      const q = query(collection(db, "Social-Posts"),);
+      const q = query(collection(db, "Social-Posts"), orderBy("userDate" ,"desc"),   /* where("userId", "==", state?.user?.uid)*/);
        unsubscribe = onSnapshot(q, (querySnapshot) => {
         let realTime = []
         querySnapshot.forEach((doc) => {
@@ -289,6 +290,7 @@ const targetclosed=()=>{
             height: '42px',
             borderRadius: '50%',
             marginRight: '16px',
+            
           },
           userInfo: {
             display: 'flex',
@@ -320,11 +322,11 @@ const targetclosed=()=>{
         return (
           <div key={i} style={styles.card }>
             <div style={styles.cardHeader}>
-              <img
+             <Link to={"/profile"}> <img
                 src={ele.profilePic}
                 alt="Profile Picture"
                 style={styles.profilePic}
-              />
+              /></Link>
               <div style={{display: "flex", justifyContent: "space-between", width: "100%"}}>
               <div style={styles.userInfo}>
                 <span style={styles.userName}>{ele.userName}</span>
@@ -337,7 +339,7 @@ const targetclosed=()=>{
   // showDenyButton: true,
   icon: "warning",
   showCancelButton: true,
-  confirmButtonText: "Save",
+  confirmButtonText: "Delete",
   denyButtonText: `Don't save`
 }).then((result) => {
   /* Read more about isConfirmed, isDenied below */

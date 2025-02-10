@@ -6,6 +6,7 @@ import SignPage from '../pages/SignPage';
 import ForgetPage from '../pages/ForgetPage';
 import LoginPage from '../pages/LoginPage';
 import { CircularProgress } from '@mui/material'
+import Profile from '../pages/Profile';
 
 
 const CustomRoutes = () => {
@@ -17,6 +18,7 @@ const CustomRoutes = () => {
         <Routes>
         <Route path='/' element={<HomePage/>}/>
         <Route path='/forget' element={<ForgetPage/>}/>
+        <Route path='/profile' element={<Profile/>}/>
         <Route path='*' element={<Navigate to={'/'}/>}/>
 
       </Routes>

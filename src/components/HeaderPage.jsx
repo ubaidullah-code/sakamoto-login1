@@ -62,8 +62,8 @@ const Header = () => {
           <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }} onClick={() => setIsDrawerOpen(true)}>
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold" }}>
-            <p>{state.user.displayName}</p>
+          <Typography variant="h6" sx={{ flexGrow: 1,display: "flex", justifyContent: "center", fontWeight: "bold" }}>
+            <Link style={{textDecoration: "none", color: "white"}} to={'./profile'}><p>{state.user.displayName}</p></Link>
           </Typography>
           {(state.isLogin == false) ?
             <>
@@ -116,7 +116,7 @@ const Header = () => {
         <div style={{ overflow: "hidden", display: "flex", justifyContent: "space-between", flexDirection: "column", alignItems: "center", height: "95vh", pointerEvents: openPath ? "auto" : "none", opacity: openPath ? 1 : 0.5 }}>
           <List sx={{ width: 250 }}>
             <ListItem style={{display: "flex", gap: "11px"}}>
-              <img src={state?.user.photoURL} style={{width: "50px", borderRadius: "50%"}} alt="" />
+            <Link to={'./profile'}><img src={state?.user.photoURL} style={{width: "50px", borderRadius: "50%"}} alt="" /></Link>
               <div style={{}}>
               <p style={{margin: 0}}>{state?.user.displayName}</p>
               {/* <p style={{margin: 0, color: "rgb(47, 79, 79)"}} >{state?.user.email}</p> */}
