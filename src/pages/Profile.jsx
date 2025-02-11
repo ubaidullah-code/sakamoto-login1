@@ -244,9 +244,9 @@ unsubscribe();
         </div>
         <hr />
         <div className='Button-section'>
-          <button><VideoCameraFrontIcon style={{ fontSize: 30, color: 'red' }} />Live Video</button>
+          <button onClick={()=>Swal.fire("This Feature is coming soon")}><VideoCameraFrontIcon style={{ fontSize: 30, color: 'red' }} />Live Video</button>
           <button onClick={handleOpen}><InsertPhotoIcon style={{ fontSize: 30, color: 'green' }} />Photo/Video</button>
-          <button><EmojiEmotionsIcon style={{ fontSize: 30, color: 'yellow' }} />Feeling Activity</button>
+          <button onClick={()=>Swal.fire("This Feature is coming soon")}><EmojiEmotionsIcon style={{ fontSize: 30, color: 'yellow' }} />Feeling Activity</button>
         </div>
       </div>
       :
