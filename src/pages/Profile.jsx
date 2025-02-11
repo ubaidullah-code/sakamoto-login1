@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { GlobalContext } from '../Context/Context'
-import { addDoc, collection, deleteDoc, doc, getFirestore, onSnapshot, orderBy, query, where } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, doc, getFirestore, onSnapshot, orderBy, query, updateDoc, where } from 'firebase/firestore'
 import Swal from 'sweetalert2'
 import moment from 'moment'
 import {  Box, Button,  Modal,  TextField, Typography } from "@mui/material";
@@ -23,6 +23,7 @@ const Profile = () => {
     const [idCheck ,setIdCheck]=useState("")
     const [files, setFile] = useState();
     const [text, setText] = useState("");
+    const [captionCheck, setCaptionCheck] = useState('');
       const fileInputRef = useRef(null);
 
     const db = getFirestore();
@@ -122,10 +123,20 @@ unsubscribe();
         console.log('delete post', id);
         
       }
-      const editpost=(id )=>{
+      const upadatePost = async()=>{
+          const cityRef = doc(db, 'Social-Posts', idCheck );
+          setCaptionCheck('')
+      // Remove the 'capital' field from the document
+      await updateDoc(cityRef, {
+          caption:captionCheck
+        });
+        setModalOpen(false)
+        setCaptionCheck('')
+        }
+      const editpost=(id , val )=>{
         setIdCheck(id)
-        // setAnthorText(val)
-        // setModalOpen(true)
+        setCaptionCheck(val)
+        setModalOpen(true)
         
         }
         const handleOpen = () => {
@@ -142,6 +153,10 @@ unsubscribe();
         };
         const targetclosed=()=>{
           setClosed(true)
+        }
+        const handleCloseCheck=()=>{
+          setModalOpen(false)
+          setCaptionCheck('')
         }
   return (
     <div>
@@ -355,6 +370,41 @@ unsubscribe();
           </div>
         )
       })}
+      <Modal open={modalOpen} onClose={handleCloseCheck}>
+              <Box sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: 400,
+                bgcolor: "#252728",
+                boxShadow: 24,
+                p: 4,
+                borderRadius: 2
+              }}>
+                <Typography variant="h6" sx={{ color: "white", textAlign: "center", mb: 2 }}>
+                  Update Post
+                </Typography>
+               
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={2}
+                  type='text'
+                  label="Enter your text"
+                  variant="outlined"
+                  sx={{ mb: 2 }}
+                  value={captionCheck}
+                  onChange={(e) => setCaptionCheck(e.target.value)}
+                />
+                
+                     
+                <Box sx={{ mt: 3, display: "flex", justifyContent: "space-between" }}>
+                  {/* <Button variant="contained" sx={{ bgcolor: "gray" }} onClick={handleClose}>Cancel</Button> */}
+                  <Button variant="contained" color="primary" disabled={captionCheck == 0} onClick={upadatePost}>Post</Button>
+                </Box>
+              </Box>
+            </Modal>
     </div>
   )
 }
