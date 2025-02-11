@@ -6,9 +6,9 @@ import InsertPhotoIcon from '@mui/icons-material/InsertPhoto';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import { Modal, Box, Button, Typography, TextField } from "@mui/material";
 import { IconButton } from '@mui/material';
-import { ThumbUp, Share, Comment } from '@mui/icons-material';
-import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
+import AddIcon from '@mui/icons-material/Add';
+import { ThumbUp, Share, Comment } from '@mui/icons-material';
 import { addDoc, collection, deleteDoc, doc, getDocs, getFirestore, onSnapshot, orderBy, query, updateDoc, where } from "firebase/firestore";
 import moment from 'moment/moment';
 import axios from 'axios';
@@ -172,10 +172,12 @@ await updateDoc(cityRef, {
   }
 const editpost=(id ,val)=>{
 serIdCheck(id)
+setCaptionCheck(val)
+// setModalOpen(true)
 
 // console.log('idcheck', idCheck)
 setAnthorText(val)
-// setModalOpen(true)
+setModalOpen(true)
 
 }
 
@@ -188,7 +190,7 @@ const targetclosed=()=>{
 }
   
   return (
-    <div style={{opacity: closed==false ? 1 : 0.5}}>
+    <div >
       <div className='header' >
         <div className='header-First'>
           <img  onClick={()=>{editChange()}} src={state.user?.photoURL} alt="" />
@@ -421,7 +423,7 @@ const targetclosed=()=>{
             label="Enter your text"
             variant="outlined"
             sx={{ mb: 2 }}
-            // value={anthorText}
+            value={captionCheck}
             onChange={(e) => setCaptionCheck(e.target.value)}
           />
           
