@@ -15,7 +15,7 @@ import axios from 'axios';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import Swal from 'sweetalert2';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 // import Button from '@mui/material/Button';
 
 const HomePage = () => {
@@ -32,7 +32,9 @@ const HomePage = () => {
   // const anchorRef = useRef(null);
   const fileInputRef = useRef(null);
   // const{state}=useContext(GlobalContext)
-  
+  const{ stateId , dispatchId}=useContext(GlobalContext)
+    console.log("stateId", stateId)
+    const localCheck = localStorage.setItem("userId", (stateId.idUser)? stateId.idUser: state.user.uid )
 
  
   const db = getFirestore();
@@ -126,7 +128,7 @@ const HomePage = () => {
     let unsubscribe;
     // getPost()
     const realTimeData=()=>{
-      const q = query(collection(db, "Social-Posts"), orderBy("userDate" ,"desc"),   /* where("userId", "==", state?.user?.uid)*/);
+      const q = query(collection(db, "Social-Posts"), orderBy("userDate" ,"desc"),   );
        unsubscribe = onSnapshot(q, (querySnapshot) => {
         let realTime = []
         querySnapshot.forEach((doc) => {
@@ -140,13 +142,19 @@ const HomePage = () => {
       });
     }  
 
-    console.log('getprov', provideData)
+    // console.log('getprov', provideData)
     realTimeData()
     
     return()=> {
       unsubscribe()
+      dispatchId({type: "USER_ID_NOTFOUND"});
     }
-  }, [])
+  }, [ ])
+  let navigate = useNavigate()
+  const editChange = ()=>{
+      navigate("./profile")
+      
+  }
   const deletePostCheck= async(id) =>{
     await deleteDoc(doc(db, "Social-Posts", id));
     console.log('delete post', id);
@@ -164,10 +172,13 @@ await updateDoc(cityRef, {
   }
 const editpost=(id ,val)=>{
 serIdCheck(id)
+
+// console.log('idcheck', idCheck)
 setAnthorText(val)
-setModalOpen(true)
+// setModalOpen(true)
 
 }
+
 const handleCloseCheck=()=>{
   setModalOpen(false)
   setCaptionCheck('')
@@ -180,7 +191,7 @@ const targetclosed=()=>{
     <div style={{opacity: closed==false ? 1 : 0.5}}>
       <div className='header' >
         <div className='header-First'>
-          <img src={state.user?.photoURL} alt="" />
+          <img  onClick={()=>{editChange()}} src={state.user?.photoURL} alt="" />
           <button onClick={handleOpen}>What's on your mind, {state?.user?.displayName}?</button>
         </div>
         <hr />
@@ -268,7 +279,7 @@ const targetclosed=()=>{
         </Box>
       </Modal>
       {provideData.map((ele, i) => {
-        console.log("eachpost", ele)
+        // console.log("eachpost", ele)
         const styles = {
           card: {
             width: '35.5%',
@@ -322,11 +333,13 @@ const targetclosed=()=>{
         return (
           <div key={i} style={styles.card }>
             <div style={styles.cardHeader}>
-             <Link to={"/profile"}> <img
+              
+              <img
                 src={ele.profilePic}
                 alt="Profile Picture"
                 style={styles.profilePic}
-              /></Link>
+                onClick={() => editChange(dispatchId({ type: "USER_ID", payload: ele.userId }))}
+              />
               <div style={{display: "flex", justifyContent: "space-between", width: "100%"}}>
               <div style={styles.userInfo}>
                 <span style={styles.userName}>{ele.userName}</span>
@@ -335,18 +348,18 @@ const targetclosed=()=>{
               {(state.user.uid == ele.userId)?
               <>
               <Button variant="contained" color='error' onClick={()=>{Swal.fire({
-  title: "Do you want to delete your post?",
-  // showDenyButton: true,
-  icon: "warning",
-  showCancelButton: true,
-  confirmButtonText: "Delete",
-  denyButtonText: `Don't save`
-}).then((result) => {
-  /* Read more about isConfirmed, isDenied below */
-  if (result.isConfirmed) {
-    deletePostCheck(ele.id)
-    Swal.fire("Saved!", "", "success");
-  } 
+                  title: "Do you want to delete your post?",
+                  // showDenyButton: true,
+                  icon: "warning",
+                  showCancelButton: true,
+                  confirmButtonText: "Delete",
+                  denyButtonText: `Don't save`
+                }).then((result) => {
+                  /* Read more about isConfirmed, isDenied below */
+                  if (result.isConfirmed) {
+                    deletePostCheck(ele.id)
+                    Swal.fire("Saved!", "", "success");
+                  } 
 });}} startIcon={<DeleteIcon />}>Delete</Button>
               <Button variant="contained" color='secondary' onClick={()=>{editpost(ele.id , ele.caption) }} startIcon={<EditIcon />}>Edit</Button>
               </>

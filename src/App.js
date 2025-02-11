@@ -13,7 +13,7 @@ import CustomRoutes from './components/CustomRoutes';
 //firebase init
 function App() {
   const{state, dispatch}=useContext(GlobalContext)
-  console.log(state)
+  // console.log(state)
   const firebaseConfig = {
     apiKey: "AIzaSyCMXk4MM0597c-b_N72krcFeNnAqaB5ODY",
     authDomain: "sakamoto-login1.firebaseapp.com",
@@ -22,6 +22,8 @@ function App() {
     messagingSenderId: "355405512899",
     appId: "1:355405512899:web:e4042f46f8e3ff5b15e276"
   };
+  const{stateId}=useContext(GlobalContext)
+  console.log("stateId", stateId)
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
  useEffect(()=>{

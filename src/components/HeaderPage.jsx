@@ -15,9 +15,9 @@ const Header = () => {
   const [openPath, setOpenPath] = useState(false);
 
   const { state } = useContext(GlobalContext)
-  console.log('state' ,state)
+  // console.log('state' ,state)
   const userCheck = localStorage.setItem('user', Boolean(state.isLogin))
-  console.log('usercheck', userCheck)
+  // console.log('usercheck', userCheck)
   useEffect(() => {
     if (userCheck == true) {
       setOpenPath(false);
@@ -28,7 +28,7 @@ const Header = () => {
       setOpenPath(true);
     }
   }, [state.isLogin])
-  console.log('state header', state.isLogin)
+  // console.log('state header', state.isLogin)
   const LogoutCheck = () => {
     const auth = getAuth();
     signOut(auth).then(() => {
