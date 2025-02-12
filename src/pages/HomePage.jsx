@@ -33,9 +33,9 @@ const HomePage = () => {
   const fileInputRef = useRef(null);
   // const{state}=useContext(GlobalContext)
   const{ stateId , dispatchId}=useContext(GlobalContext)
-    console.log("stateId", stateId)
+    // console.log("stateId", stateId)
     const localCheck = localStorage.setItem("userId", (stateId.idUser)? stateId.idUser: state.user.uid )
-
+console.log("files", Number(Boolean(files)))
  
   const db = getFirestore();
 
@@ -157,7 +157,7 @@ const HomePage = () => {
   }
   const deletePostCheck= async(id) =>{
     await deleteDoc(doc(db, "Social-Posts", id));
-    console.log('delete post', id);
+    // console.log('delete post', id);
     
   }
   const upadatePost = async()=>{
@@ -238,7 +238,7 @@ const targetclosed=()=>{
             onChange={(e) => setText(e.target.value)}
           />
           {(closed == false) ?
-            <div style={{ border: "1px solid rgb(101, 104, 108)", padding: "10px", borderRadius: "8px" }}>
+            <div style={{ border:` 1px solid ${(files)? "rgb(47, 79, 79)": "rgb(101, 104, 108)" }`, padding: "10px", borderRadius: "8px"  }}>
 
               {(closed== false)?
               <Box sx={{
@@ -263,7 +263,7 @@ const targetclosed=()=>{
 />
                 <div onClick={handleClick} style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
                   <AddIcon sx={{ fontSize: 40, color: "white" }} />
-                  <Typography color="white">Add photos/videos</Typography>
+                  <Typography color={files? "rgb(47, 79, 79)":"white"}>{(files)? "File Selected" :"Add photos/videos"}</Typography>
                   <Typography color="#ccc" fontSize={12}>or drag and drop</Typography>
                 </div>
               </Box>
@@ -276,7 +276,7 @@ const targetclosed=()=>{
           }
           <Box sx={{ mt: 3, display: "flex", justifyContent: "space-between" }}>
             <Button variant="contained" sx={{ bgcolor: "gray" }} onClick={handleClose}>Cancel</Button>
-            <Button variant="contained" color="primary" disabled={text == 0} onClick={addPost}>Post</Button>
+            <Button variant="contained" color="primary" disabled={!files && !text} onClick={addPost}>Post</Button>
           </Box>
         </Box>
       </Modal>

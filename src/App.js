@@ -23,7 +23,7 @@ function App() {
     appId: "1:355405512899:web:e4042f46f8e3ff5b15e276"
   };
   const{stateId}=useContext(GlobalContext)
-  console.log("stateId", stateId)
+  // console.log("stateId", stateId)
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
  useEffect(()=>{
